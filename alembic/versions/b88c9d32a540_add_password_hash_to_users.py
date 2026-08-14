@@ -7,18 +7,18 @@ Create Date: 2026-08-14 20:27:37.149772
 """
 
 import secrets
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 from argon2 import PasswordHasher
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "b88c9d32a540"
-down_revision: Union[str, Sequence[str], None] = "d3cc1dadddf6"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = "d3cc1dadddf6"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
