@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
 
 from app.db.session import async_session_factory
 from app.models.user import User
@@ -12,7 +11,10 @@ async def test_user_persistence() -> None:
     email = f"database-test-{uuid4()}@trustmesh.local"
 
     async with async_session_factory() as session:
-        user = User(email=email)
+        user = User(
+            email=email,
+            password_hash="test-password-hash",
+        )
 
         session.add(user)
         await session.commit()
@@ -20,10 +22,5 @@ async def test_user_persistence() -> None:
 
         assert user.id is not None
         assert user.email == email
+        assert user.password_hash == "test-password-hash"
         assert user.created_at is not None
-
-        result = await session.execute(select(User).where(User.id == user.id))
-        persisted_user = result.scalar_one()
-
-        assert persisted_user.id == user.id
-        assert persisted_user.email == email

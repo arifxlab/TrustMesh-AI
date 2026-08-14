@@ -4,6 +4,8 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
+PASSWORD = "CorrectHorseBatteryStaple123!"
+
 
 def test_create_organization_membership() -> None:
     with TestClient(app) as client:
@@ -20,7 +22,10 @@ def test_create_organization_membership() -> None:
 
         user_response = client.post(
             "/api/v1/users",
-            json={"email": user_email},
+            json={
+                "email": user_email,
+                "password": PASSWORD,
+            },
         )
 
         assert user_response.status_code == 201
@@ -57,7 +62,10 @@ def test_get_organization_membership() -> None:
 
         user_response = client.post(
             "/api/v1/users",
-            json={"email": f"api-lookup-{uuid4()}@example.com"},
+            json={
+                "email": f"api-lookup-{uuid4()}@example.com",
+                "password": PASSWORD,
+            },
         )
 
         user_id = user_response.json()["id"]
@@ -103,12 +111,18 @@ def test_list_organization_memberships() -> None:
 
         first_user_response = client.post(
             "/api/v1/users",
-            json={"email": f"api-list-1-{uuid4()}@example.com"},
+            json={
+                "email": f"api-list-1-{uuid4()}@example.com",
+                "password": PASSWORD,
+            },
         )
 
         second_user_response = client.post(
             "/api/v1/users",
-            json={"email": f"api-list-2-{uuid4()}@example.com"},
+            json={
+                "email": f"api-list-2-{uuid4()}@example.com",
+                "password": PASSWORD,
+            },
         )
 
         first_user_id = first_user_response.json()["id"]
@@ -170,7 +184,10 @@ def test_create_duplicate_membership_returns_409() -> None:
 
         user_response = client.post(
             "/api/v1/users",
-            json={"email": f"api-duplicate-{uuid4()}@example.com"},
+            json={
+                "email": f"api-duplicate-{uuid4()}@example.com",
+                "password": PASSWORD,
+            },
         )
 
         user_id = user_response.json()["id"]
@@ -202,7 +219,10 @@ def test_create_membership_rejects_empty_role() -> None:
 
         user_response = client.post(
             "/api/v1/users",
-            json={"email": f"api-role-{uuid4()}@example.com"},
+            json={
+                "email": f"api-role-{uuid4()}@example.com",
+                "password": PASSWORD,
+            },
         )
 
         user_id = user_response.json()["id"]

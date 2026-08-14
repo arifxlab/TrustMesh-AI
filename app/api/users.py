@@ -31,7 +31,10 @@ async def create_user(
             detail="A user with this email already exists.",
         )
 
-    user = await service.create_user(str(payload.email))
+    user = await service.create_user(
+        str(payload.email),
+        payload.password,
+    )
 
     await session.commit()
 

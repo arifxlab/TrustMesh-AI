@@ -19,7 +19,7 @@ async def test_create_membership() -> None:
         membership_service = OrganizationMemberService(session)
 
         organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email)
+        user = await user_service.create_user(email, "TestPassword123!")
 
         membership = await membership_service.create_membership(
             organization_id=organization.id,
@@ -44,7 +44,7 @@ async def test_get_membership_by_id() -> None:
         membership_service = OrganizationMemberService(session)
 
         organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email)
+        user = await user_service.create_user(email, "TestPassword123!")
 
         created_membership = await membership_service.create_membership(
             organization.id,
@@ -85,7 +85,7 @@ async def test_get_membership_by_organization_and_user() -> None:
         membership_service = OrganizationMemberService(session)
 
         organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email)
+        user = await user_service.create_user(email, "TestPassword123!")
 
         created_membership = await membership_service.create_membership(
             organization.id,
@@ -131,8 +131,8 @@ async def test_list_memberships_by_organization() -> None:
         membership_service = OrganizationMemberService(session)
 
         organization = await organization_service.create_organization(organization_name)
-        first_user = await user_service.create_user(first_email)
-        second_user = await user_service.create_user(second_email)
+        first_user = await user_service.create_user(first_email, "TestPassword123!")
+        second_user = await user_service.create_user(second_email, "TestPassword123!")
 
         first_membership = await membership_service.create_membership(
             organization.id,

@@ -19,7 +19,7 @@ async def test_create_and_get_membership() -> None:
         membership_repository = OrganizationMemberRepository(session)
 
         organization = await organization_repository.create(organization_name)
-        user = await user_repository.create(email)
+        user = await user_repository.create(email, "test-password-hash")
 
         membership = await membership_repository.create(
             organization.id,
@@ -51,7 +51,7 @@ async def test_get_membership_by_organization_and_user() -> None:
         membership_repository = OrganizationMemberRepository(session)
 
         organization = await organization_repository.create(organization_name)
-        user = await user_repository.create(email)
+        user = await user_repository.create(email, "test-password-hash")
 
         membership = await membership_repository.create(
             organization.id,
@@ -113,8 +113,8 @@ async def test_list_memberships_by_organization() -> None:
         membership_repository = OrganizationMemberRepository(session)
 
         organization = await organization_repository.create(organization_name)
-        first_user = await user_repository.create(first_email)
-        second_user = await user_repository.create(second_email)
+        first_user = await user_repository.create(first_email, "test-password-hash")
+        second_user = await user_repository.create(second_email, "test-password-hash")
 
         first_membership = await membership_repository.create(
             organization.id,
