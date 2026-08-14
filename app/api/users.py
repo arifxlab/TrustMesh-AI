@@ -4,12 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
+from app.dependencies.auth import get_current_user
+from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 db_session = Depends(get_db_session)
+current_user_dependency = Depends(get_current_user)
 
 
 @router.post(
@@ -39,6 +42,16 @@ async def create_user(
     await session.commit()
 
     return UserResponse.model_validate(user)
+
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+)
+async def get_current_user_profile(
+    current_user: User = current_user_dependency,
+) -> UserResponse:
+    return UserResponse.model_validate(current_user)
 
 
 @router.get(
