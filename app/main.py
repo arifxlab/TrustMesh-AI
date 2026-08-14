@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from app.api.organization_members import router as organization_members_router
+from app.api.organizations import router as organizations_router
 from app.api.users import router as users_router
 from app.core.config import get_settings
 
@@ -12,6 +14,8 @@ app = FastAPI(
 )
 
 app.include_router(users_router, prefix="/api/v1")
+app.include_router(organizations_router, prefix="/api/v1")
+app.include_router(organization_members_router, prefix="/api/v1")
 
 
 @app.get("/health")
