@@ -3,7 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.authorization.roles import OrganizationRole
 from app.db.session import get_db_session
+from app.dependencies.organization import (
+    get_current_membership,
+    require_organization_role,
+)
+from app.models.organization_member import OrganizationMember
 from app.schemas.organization_member import (
     OrganizationMemberCreate,
     OrganizationMemberResponse,
@@ -16,6 +22,13 @@ router = APIRouter(
 )
 
 db_session = Depends(get_db_session)
+current_membership_dependency = Depends(get_current_membership)
+admin_or_owner_dependency = Depends(
+    require_organization_role(
+        OrganizationRole.OWNER,
+        OrganizationRole.ADMIN,
+    )
+)
 
 
 @router.post(
@@ -26,6 +39,7 @@ db_session = Depends(get_db_session)
 async def create_membership(
     organization_id: UUID,
     payload: OrganizationMemberCreate,
+    _: OrganizationMember = admin_or_owner_dependency,
     session: AsyncSession = db_session,
 ) -> OrganizationMemberResponse:
     service = OrganizationMemberService(session)
@@ -58,6 +72,7 @@ async def create_membership(
 )
 async def list_memberships(
     organization_id: UUID,
+    _: OrganizationMember = current_membership_dependency,
     session: AsyncSession = db_session,
 ) -> list[OrganizationMemberResponse]:
     service = OrganizationMemberService(session)
@@ -76,6 +91,7 @@ async def list_memberships(
 async def get_membership(
     organization_id: UUID,
     user_id: UUID,
+    _: OrganizationMember = current_membership_dependency,
     session: AsyncSession = db_session,
 ) -> OrganizationMemberResponse:
     service = OrganizationMemberService(session)

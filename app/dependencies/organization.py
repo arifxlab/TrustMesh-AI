@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
@@ -41,7 +41,7 @@ current_membership_dependency = Depends(get_current_membership)
 
 def require_organization_role(
     *allowed_roles: OrganizationRole,
-) -> Callable:
+) -> Callable[[OrganizationMember], Coroutine[object, object, OrganizationMember]]:
     async def dependency(
         membership: OrganizationMember = current_membership_dependency,
     ) -> OrganizationMember:
