@@ -7,8 +7,42 @@ from app.main import app
 PASSWORD = "CorrectHorseBatteryStaple123!"
 
 
+def create_authenticated_client() -> TestClient:
+    client = TestClient(app)
+
+    email = f"organization-member-api-{uuid4()}@example.com"
+
+    create_response = client.post(
+        "/api/v1/users",
+        json={
+            "email": email,
+            "password": PASSWORD,
+        },
+    )
+
+    assert create_response.status_code == 201
+
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": email,
+            "password": PASSWORD,
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    access_token = login_response.json()["access_token"]
+
+    client.headers.update(
+        {"Authorization": f"Bearer {access_token}"},
+    )
+
+    return client
+
+
 def test_create_organization_membership() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Membership Organization {uuid4()}"},
@@ -52,11 +86,13 @@ def test_create_organization_membership() -> None:
 
 
 def test_get_organization_membership() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Membership Lookup {uuid4()}"},
         )
+
+        assert organization_response.status_code == 201
 
         organization_id = organization_response.json()["id"]
 
@@ -67,6 +103,8 @@ def test_get_organization_membership() -> None:
                 "password": PASSWORD,
             },
         )
+
+        assert user_response.status_code == 201
 
         user_id = user_response.json()["id"]
 
@@ -101,11 +139,13 @@ def test_get_organization_membership_returns_404_when_missing() -> None:
 
 
 def test_list_organization_memberships() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Membership List {uuid4()}"},
         )
+
+        assert organization_response.status_code == 201
 
         organization_id = organization_response.json()["id"]
 
@@ -124,6 +164,9 @@ def test_list_organization_memberships() -> None:
                 "password": PASSWORD,
             },
         )
+
+        assert first_user_response.status_code == 201
+        assert second_user_response.status_code == 201
 
         first_user_id = first_user_response.json()["id"]
         second_user_id = second_user_response.json()["id"]
@@ -153,15 +196,17 @@ def test_list_organization_memberships() -> None:
 
     assert first_user_id in membership_user_ids
     assert second_user_id in membership_user_ids
-    assert len(data) == 2
+    assert len(data) == 3
 
 
 def test_list_organization_memberships_returns_empty_list() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Empty Members {uuid4()}"},
         )
+
+        assert organization_response.status_code == 201
 
         organization_id = organization_response.json()["id"]
 
@@ -170,15 +215,21 @@ def test_list_organization_memberships_returns_empty_list() -> None:
         )
 
     assert response.status_code == 200
-    assert response.json() == []
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["role"] == "owner"
 
 
 def test_create_duplicate_membership_returns_409() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Duplicate Membership {uuid4()}"},
         )
+
+        assert organization_response.status_code == 201
 
         organization_id = organization_response.json()["id"]
 
@@ -189,6 +240,8 @@ def test_create_duplicate_membership_returns_409() -> None:
                 "password": PASSWORD,
             },
         )
+
+        assert user_response.status_code == 201
 
         user_id = user_response.json()["id"]
 
@@ -205,15 +258,19 @@ def test_create_duplicate_membership_returns_409() -> None:
         )
 
     assert second_response.status_code == 409
-    assert second_response.json() == {"detail": "User is already a member of this organization."}
+    assert second_response.json() == {
+        "detail": "User is already a member of this organization."
+    }
 
 
 def test_create_membership_rejects_empty_role() -> None:
-    with TestClient(app) as client:
+    with create_authenticated_client() as client:
         organization_response = client.post(
             "/api/v1/organizations",
             json={"name": f"API Role Validation {uuid4()}"},
         )
+
+        assert organization_response.status_code == 201
 
         organization_id = organization_response.json()["id"]
 
@@ -224,6 +281,8 @@ def test_create_membership_rejects_empty_role() -> None:
                 "password": PASSWORD,
             },
         )
+
+        assert user_response.status_code == 201
 
         user_id = user_response.json()["id"]
 

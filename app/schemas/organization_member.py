@@ -3,10 +3,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.authorization.roles import OrganizationRole
+
 
 class OrganizationMemberCreate(BaseModel):
     user_id: UUID
-    role: str = Field(default="member", min_length=1, max_length=50)
+    role: OrganizationRole = Field(default=OrganizationRole.MEMBER)
 
 
 class OrganizationMemberResponse(BaseModel):
@@ -15,5 +17,5 @@ class OrganizationMemberResponse(BaseModel):
     id: UUID
     organization_id: UUID
     user_id: UUID
-    role: str
+    role: OrganizationRole
     created_at: datetime

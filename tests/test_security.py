@@ -74,7 +74,12 @@ def test_expired_access_token_is_rejected() -> None:
 
 def test_tampered_access_token_is_rejected() -> None:
     token = token_security.create_access_token("user-123")
-    tampered_token = f"{token[:-1]}{'a' if token[-1] != 'a' else 'b'}"
+
+    header, payload, signature = token.split(".")
+    tampered_signature = (
+        f"{signature[:-1]}{'a' if signature[-1] != 'a' else 'b'}"
+    )
+    tampered_token = f"{header}.{payload}.{tampered_signature}"
 
     assert token_security.decode_access_token(tampered_token) is None
 
@@ -86,7 +91,7 @@ def test_access_token_with_wrong_secret_is_rejected() -> None:
         {
             "sub": "user-123",
         },
-        "wrong-secret",
+        "wrong-secret-for-trustmesh-security-test-2026",
         algorithm="HS256",
     )
 

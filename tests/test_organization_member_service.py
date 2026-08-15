@@ -11,44 +11,70 @@ from app.services.user import UserService
 @pytest.mark.asyncio
 async def test_create_membership() -> None:
     organization_name = f"Service Membership Organization {uuid4()}"
-    email = f"service-membership-{uuid4()}@trustmesh.local"
+    owner_email = f"service-owner-{uuid4()}@trustmesh.local"
+    member_email = f"service-membership-{uuid4()}@trustmesh.local"
 
     async with async_session_factory() as session:
         organization_service = OrganizationService(session)
         user_service = UserService(session)
         membership_service = OrganizationMemberService(session)
 
-        organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email, "TestPassword123!")
+        owner = await user_service.create_user(
+            owner_email,
+            "TestPassword123!",
+        )
+
+        member = await user_service.create_user(
+            member_email,
+            "TestPassword123!",
+        )
+
+        organization = await organization_service.create_organization(
+            organization_name,
+            owner.id,
+        )
 
         membership = await membership_service.create_membership(
             organization_id=organization.id,
-            user_id=user.id,
+            user_id=member.id,
         )
 
         await session.commit()
 
     assert membership.organization_id == organization.id
-    assert membership.user_id == user.id
+    assert membership.user_id == member.id
     assert membership.role == "member"
 
 
 @pytest.mark.asyncio
 async def test_get_membership_by_id() -> None:
     organization_name = f"Service Membership Lookup {uuid4()}"
-    email = f"service-membership-id-{uuid4()}@trustmesh.local"
+    owner_email = f"service-owner-id-{uuid4()}@trustmesh.local"
+    member_email = f"service-membership-id-{uuid4()}@trustmesh.local"
 
     async with async_session_factory() as session:
         organization_service = OrganizationService(session)
         user_service = UserService(session)
         membership_service = OrganizationMemberService(session)
 
-        organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email, "TestPassword123!")
+        owner = await user_service.create_user(
+            owner_email,
+            "TestPassword123!",
+        )
+
+        member = await user_service.create_user(
+            member_email,
+            "TestPassword123!",
+        )
+
+        organization = await organization_service.create_organization(
+            organization_name,
+            owner.id,
+        )
 
         created_membership = await membership_service.create_membership(
             organization.id,
-            user.id,
+            member.id,
         )
 
         await session.commit()
@@ -56,12 +82,14 @@ async def test_get_membership_by_id() -> None:
     async with async_session_factory() as session:
         membership_service = OrganizationMemberService(session)
 
-        membership = await membership_service.get_membership_by_id(created_membership.id)
+        membership = await membership_service.get_membership_by_id(
+            created_membership.id,
+        )
 
     assert membership is not None
     assert membership.id == created_membership.id
     assert membership.organization_id == organization.id
-    assert membership.user_id == user.id
+    assert membership.user_id == member.id
 
 
 @pytest.mark.asyncio
@@ -77,19 +105,32 @@ async def test_get_membership_by_id_returns_none_for_unknown_membership() -> Non
 @pytest.mark.asyncio
 async def test_get_membership_by_organization_and_user() -> None:
     organization_name = f"Service Membership Pair {uuid4()}"
-    email = f"service-membership-pair-{uuid4()}@trustmesh.local"
+    owner_email = f"service-owner-pair-{uuid4()}@trustmesh.local"
+    member_email = f"service-membership-pair-{uuid4()}@trustmesh.local"
 
     async with async_session_factory() as session:
         organization_service = OrganizationService(session)
         user_service = UserService(session)
         membership_service = OrganizationMemberService(session)
 
-        organization = await organization_service.create_organization(organization_name)
-        user = await user_service.create_user(email, "TestPassword123!")
+        owner = await user_service.create_user(
+            owner_email,
+            "TestPassword123!",
+        )
+
+        member = await user_service.create_user(
+            member_email,
+            "TestPassword123!",
+        )
+
+        organization = await organization_service.create_organization(
+            organization_name,
+            owner.id,
+        )
 
         created_membership = await membership_service.create_membership(
             organization.id,
-            user.id,
+            member.id,
         )
 
         await session.commit()
@@ -99,7 +140,7 @@ async def test_get_membership_by_organization_and_user() -> None:
 
         membership = await membership_service.get_membership_by_organization_and_user(
             organization.id,
-            user.id,
+            member.id,
         )
 
     assert membership is not None
@@ -130,14 +171,27 @@ async def test_list_memberships_by_organization() -> None:
         user_service = UserService(session)
         membership_service = OrganizationMemberService(session)
 
-        organization = await organization_service.create_organization(organization_name)
-        first_user = await user_service.create_user(first_email, "TestPassword123!")
-        second_user = await user_service.create_user(second_email, "TestPassword123!")
+        first_user = await user_service.create_user(
+            first_email,
+            "TestPassword123!",
+        )
+        second_user = await user_service.create_user(
+            second_email,
+            "TestPassword123!",
+        )
 
-        first_membership = await membership_service.create_membership(
+        organization = await organization_service.create_organization(
+            organization_name,
+            first_user.id,
+        )
+
+        first_membership = await membership_service.get_membership_by_organization_and_user(
             organization.id,
             first_user.id,
         )
+
+        assert first_membership is not None
+
         second_membership = await membership_service.create_membership(
             organization.id,
             second_user.id,

@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.authorization.roles import OrganizationRole
 from app.models.organization_member import OrganizationMember
 from app.repositories.organization_member import OrganizationMemberRepository
 
@@ -14,7 +15,7 @@ class OrganizationMemberService:
         self,
         organization_id: UUID,
         user_id: UUID,
-        role: str = "member",
+        role: OrganizationRole = OrganizationRole.MEMBER,
     ) -> OrganizationMember:
         return await self.repository.create(
             organization_id=organization_id,

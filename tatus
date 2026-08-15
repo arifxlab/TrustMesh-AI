@@ -1,0 +1,10 @@
+warning: in the working copy of 'app/api/organizations.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/db/session.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/repositories/organization_member.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/schemas/organization_member.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/services/organization.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/services/organization_member.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_organization_api.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_organization_member_api.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_organization_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_security.py', LF will be replaced by CRLF the next time Git touches it

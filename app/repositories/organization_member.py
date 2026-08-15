@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.authorization.roles import OrganizationRole
 from app.models.organization_member import OrganizationMember
 
 
@@ -14,7 +15,7 @@ class OrganizationMemberRepository:
         self,
         organization_id: UUID,
         user_id: UUID,
-        role: str = "member",
+        role: OrganizationRole = OrganizationRole.MEMBER,
     ) -> OrganizationMember:
         membership = OrganizationMember(
             id=uuid4(),
