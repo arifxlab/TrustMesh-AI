@@ -76,8 +76,8 @@ def test_tampered_access_token_is_rejected() -> None:
     token = token_security.create_access_token("user-123")
 
     header, payload, signature = token.split(".")
-    tampered_signature = f"{signature[:-1]}{'a' if signature[-1] != 'a' else 'b'}"
-    tampered_token = f"{header}.{payload}.{tampered_signature}"
+    tampered_payload = f"{payload[:-1]}{'a' if payload[-1] != 'a' else 'b'}"
+    tampered_token = f"{header}.{tampered_payload}.{signature}"
 
     assert token_security.decode_access_token(tampered_token) is None
 
